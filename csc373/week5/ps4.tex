@@ -1,0 +1,181 @@
+\documentclass{assignment-373}
+\usepackage{mathabx}
+\usepackage{tikz}
+
+
+\anum{4}
+\course{CSC373}
+\duedate{Oct 24, 2020}
+\filename{ps4.pdf, ps4.tex}
+
+\begin{document}
+
+\think
+
+\textbf{Please see the course information sheet for the late submission
+  policy.}
+
+\textbf{[15 points]}
+
+You are studying the layout of the city of \textsc{Mediviala}. The city is
+filled with several historical buildings. Being medivial, the dominant
+material used for constructing these buildings is wood. This makes
+protecting these buildings from fire a very important aspect of city
+planning. We will determine that among all the historical buildings in
+the city, what was the longest time it would have taken in order to
+get help in case of a fire in one of these buildings.
+
+You have access to a map of \textsc{Mediviala}. All the locations in
+the city have been numbered from $[n] = \{1,\ldots, n\}.$
+%
+You are given a list $S$ of streets in the city, with $|S| = m$. Each
+street is connects two end points that are among the city locations
+numbered $1, \ldots, n,$ and is specified as a pair of such locations.
+%
+For each street, you are also provided the time in minutes required to
+travel along the street in either direction.
+
+% $R$ connecting various locations in the city, along with the time
+% required to travel along them. Concretely, each road connects two end
+% points that among the city locations numbered $1, \ldots, n.$ For each
+% road, you are also given the time in minutes taken to travel along
+% that road. Note that a road can be traveled in either direction.
+
+% with $n$ locations
+% $[n] := \{1,\ldots,n\}$, where any two locations $i$ and $j$ are
+% potentially connected by a bidirecitonal road of length $\ell(i,j)$,
+% where $i, j \in [n]$. Let $m$ denote the number of the connections
+% among the locations in the city.
+Finally, you are given two lists. The first list $H \subseteq [n]$
+contains the locations of all the historical buildings in the city.
+%
+The second list $F \subseteq [n]$ represents the list of fire stations
+in the city.
+% are also
+% given two sets with $H,F \subset [n]$ and $H \cap F = \emptyset$,
+% where $H$ and $F$ represent the historical buildings and the fire
+% stations in the city, respectively.
+
+Your goal is to determine, for each historical building in the city,
+its shortest distance to the \emph{closest} fire station.
+%
+Follow the steps below to design an algorithm for this problem that
+has a worst-case time complexity of $O(m \log n).$
+%
+\begin{enumerate}
+\item \textbf{(1 point)} Describe how will you model the problem, and
+  the data-structure(s) that you will use to store the input
+  information.
+  \\\\
+  \phantom{=} \phantom{=} To solve this problem, we will be using an adjacency matrix as our graph implementation, a python dictionary to store the distance between our starting point and the destination point, a min-heap for quick-Dijkstra algorithm, and a python list to store each vertex's parent once they have been picked and removed from the min-heap.\\
+  \\
+%   In  this  problem,  since  we  needs  to  get  for  each  historical  building  in  the  city,  its  shortestdistance to the closest fire station.  i will use Dijkstra’s algorithm to solve as the shortest pathproblem and using python list and dictionary as the data-structures.
+
+\item \textbf{(2 points)} Briefly describe in up to 3 lines how you
+  can solve the problem in $O\left(|H|m \log n\right)$ worst-case
+  time, where $|H|$ denotes the number of historical buildings in the
+  city.\\\\
+  \phantom{=} \phantom{=} To find the shortest path for all historical buildings to a fire station in O($|H|$mlogn), we can loop over each historical buildings "h", and call Dijkstra's algorithm on h with binary min-heap to get the shortest distance between this building and all locations in the city.\\
+  \\
+  Then we can loop over the historical buildings to find the shortest distance to a fire station by going through the dictionary.\\\\
+\item \textbf{(2 points)} Briefly describe in up to 3 lines how you
+  can solve the problem in $O\left(|F|m \log n\right)$ worst-case
+  time, where $|F|$ denotes the number of fire-stations in the city.
+  \\\\
+  \phantom{=} \phantom{=} We will use a similar approach to solve it to q2, where we call Dijkstra algorithm on every fire station, and then loop through all historical buildings and look up the shortest distance to a fire station in our python dictionary.\\\\
+  
+\item \label{item:algo} \textbf{(5 points)} Propose an algorithm that
+  solves the problem in $O(m \log n)$ worst-case time, and justify its
+  correctness.
+  \\\\
+  Algorithm:\\
+  \phantom{=} \phantom{=} first run Dijkstra's algorithm (with binary min-heap) from a randomly selected fire station. During the process, if we find a fire station at current index(vertex) y, we will set d(y) = 0 (by doing so, we have manually created a path from our "starting" fire station to y that costs 0, so any historical building we run into that's closer to y will have dist(y,h) = dist(s,h)), and we keep going until the algorithm finishes.\\
+  \\
+  \phantom{=} \phantom{=} There is the possibility of a special case, since we go through the algorithm in one direction, there might be historical buildings that are between two fire stations in the path. We need to find these historical building and take the shortest distance from these two fire station and update the dictionary.\\
+  \\
+  \phantom{=} \phantom{=} Also, we need to check the streets around each building since the shortest path will only pass that building once with two streets connected to it, the other streets (paths) we did not choose might have shorter distance with other fire stations since we start from a random fire station and this fire station may not be the nearest fire station to this building. And, when we finally update the dictionary, we will get the closest distance from fire stations for every historical buildings.\\
+  \\
+  \phantom{=} \phantom{=} We will justify the correctness of algorithm by showing every parts of the algorithm will return the output we want.\\\\
+  {\bf Part 1 (Line 2-9)}:\\
+  \phantom{=} \phantom{=} This is the initial part. Similar to the set up in the lecture, we initialize the shortest path graph and a min heap. "key" will be a dictionary to save the shortest distance from source point to vertex "v". We assign every value to infinity, and the source point to 1.\\ 
+  \phantom{=} \phantom{=} Notice, we are resetting the distance to 0 every time we encounter a fire station. So here the key dictionary basically stores the closest distance from the current index (vertex) to the previous fire station(or starting point if we haven't encountered any fire station yet) as the algorithm progresses. Then we insert every v into a min-heap with value key[v].\\\\
+  {\bf Part 2 (Line 10-29)}:\\
+  \phantom{=} \phantom{=} This is the part we do the modified Dijkstra's algorithm. It's the same as the Dijkstra's algorithm expect we reset the distance to 0 every time we encounter a fire station, also, we will be keeping track of which fire station/historical building we come across (stored using "passed\_building" and "passed\_station"), and when both of them are not "None", we will select the shortest path between the (passed\_station,passed\_building) and (s,passed\_building) to ensure we take the minimum path between the 2 (mentioned as the special casein the explanation above).\\
+  \phantom{=} \phantom{=} So part 2 will promised to give the graph that contains the shortest distances from each building (vertex) to the previous fire station the algorithm passed.\\\\
+%   {\bf Part 3 (Line 16-19)}:\\
+%   This part we go through the path again and find any buildings that are between two fire station in the path. Take the minimum between key[b] (The distance from b to the previous fire station) and dist(b,second fire station)) (which is the distance between b to the next fire station). After this step each value in key dictionary will promised to be the shortest distance between itself and the fire stations (we need to go exactly the same as the path).\\\\
+  {\bf Part 4 (Line 30-38)}:\\
+  \phantom{=} \phantom{=} What we have above is correct if and only if we follow the path create by the algorithm. But there can be some hidden paths which are not selected by the algorithm but it will provide a shorter distance between the current vertex to the a fire station.\\
+  \phantom{=} \phantom{=} So we need to check, for all buildings (b), all the edges excluded by the algorithm that connect to b, and see if it connected with a path inside X can give us a shorter distance to a fire station(or starting point). \\
+  \phantom{=} \phantom{=} This will go over every possible path around each building and updating our dictionary according to it will promised that the distance we have will be the closest distance between the current building and a fire station.\\\\
+  
+  
+  
+\item \textbf{(3 points)} Write the pseudo-code for the final
+  algorithm described in part~\ref{item:algo}
+  \\\\
+  \begin{python}
+  def shortest():
+    X <- empty graph, H <- empty binary heap
+    key = dict()
+    key[s] = 0, key[v] = inf (for all v not s)
+    ans = dict()
+    # to keep track of the actual shortest distance from fire station y to s
+    alt = dict() 
+    # to keep track of which historical building is between fire stations
+    passed_building = None
+    passed_station = None
+    for each v in V do
+        inset v into H with key[v]
+    while H is not empty:
+        m = ExtractMin(H)
+        add m to X
+        for each edge(m,y) do 
+            delete y from heap
+            if y is a fire station:
+                key[y] = 0
+                alt[y] = key[m]+edge(m,y)
+                passed_station = y
+            if y is a historical building:
+                passed_building = y
+            if passed_building and passed_station:
+                key[passed_building] = min(key[passed_building],
+                alt[passed_station]-key[passed_building])
+                passed_building = None
+                passed_station = None
+            key[y] = min(key[y],key[m]+edge(m,y))
+            insert y to H with key[y]
+    for each b (buildings) in the graph X that has 
+    edges not included in shortest path graph H:
+        curr = key(b)
+        for each b-connecting edge(b,i):
+            curr = min(d(h), key(i) + 
+            edge(b,i))
+        key[b] = curr
+        if b in historical buildings:
+            ans[b] = curr
+    return ans
+
+  \end{python}
+  % \item \textbf{(5 points)} Give a correctness proof for your algorithm.
+\item \textbf{(2 points)} Describe a short modification to the above
+  algorithm so that it also finds the closest fire station for each
+  historical building in addition to the shortest distance in
+  $O(m \log n)$ worst-case time.\\\\
+  \phantom{=} \phantom{=} The run time for part 1 and 2 will be O(mlogn) since it's basically Dijkstra's algorithm with changes that takes constant time (adding values and look up dictionary).\\
+  \\
+  \phantom{=} \phantom{=} Part 3 go over X once, with take at most O(m) (go through every streets), and the if statements and the update dictionary take constant time.\\
+  \\
+  \phantom{=} \phantom{=} Part 4 will take at most O(2m) time if we go over each streets twice (An edge(street) is connected by 2 vertices(locations))\\
+  \\
+  \phantom{=} \phantom{=} So the final running time will be O(mlogn)\\
+\end{enumerate}
+
+\end{document}
+
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

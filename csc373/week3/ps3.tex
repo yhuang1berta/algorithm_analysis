@@ -1,0 +1,141 @@
+\documentclass{assignment-373}
+\usepackage{mathabx}
+\usepackage{tikz}
+
+
+\anum{3}
+\course{CSC373}
+\duedate{Oct 10, 2020}
+\filename{ps3.pdf, ps3.tex}
+
+\begin{document}
+
+\think
+
+\textbf{Please see the course information sheet for the late submission
+  policy.}
+
+\textbf{[15 points]}
+
+You are given an array $S$ of $n$ distinct numbers (not necessarily
+integers) in sorted order such that all numbers in $S$ are
+non-negative, i.e.  $a \ge 0$ for all $a \in S.$ You are also given a
+target value $V.$ Your goal is to determine the number of pairs
+$(a, b)$ such that $a, b \in S$ and
+\[a^3 + b^3 + 3ab = V.\]
+We will consider $(a, b)$ to be the same pair
+as $(b, a).$ e.g.
+Given $S = [4, 6, 7, 9, 11],$ and $V = 685,$ the answer is 1
+(consider the pair $(6, 7)$), and if $V = 863,$ the answer is 0.
+
+Systematically design an algorithm for this problem that has a
+worst-case time complexity of $O(n).$  Note: you're not allowed to use
+a formula for solving the cubic equation.
+\begin{enumerate}
+\item \textbf{(3 points)} Clearly describe all the subproblems that
+  will be solved by your algorithm, and the values that will be stored
+  in all the data-structure being used by your algorithm.\\
+  \textrm{\\
+  \phantom{=} \phantom{=} The subproblem is {\bf "Can the current choice of a and b make the statement $a^3+b^3+3ab=V$ valid"}.\\
+  \\
+  \phantom{=} \phantom{=} We will be using 2 variables to store the index of our current choice of a and b.\\
+  }
+    
+  \\
+\item \textbf{(5 points)} Write your algorithm in pseudo-code and
+  analyze its complexity.\\
+  \begin{python}
+def findPair(S, V):
+
+    def validate(a,b):
+        return a**3 + b**3 + 3*a*b
+
+    if len(S) < 1:
+        return 0
+    elif len(S) == 1:
+        return 1 if validate(S[0],S[0]) == V else 0
+    # Set pointer_a and pointer_b to index of the first/last element of S
+    index_a, index_b = 0, len(S)-1
+    total = 0
+    
+    # Check for self-pairs
+    for i in S:
+        if validate(i,i) == V:
+            total += 1
+    
+    # Check for all pairs
+    while index_a != index_b:
+        if validate(S[index_a], S[index_b]) < V:
+            # estimate too small, increase value of a by moving right
+            move index_a to the right by 1
+        elif validate(S[index_a], S[index_b]) > V:
+            # estimate too large, decrease value of b by move left
+            move index_b to the left by 1
+        else:
+            total += 1
+            move index_a to the right by 1
+    
+    return total
+    \end{python}
+    \\
+\item \textbf{(7 points)} Give a convincing proof of correctness for
+  your algorithm. Remember that if your algorithm is greedy, you will
+  not get any marks for the previous parts without a proof of correctness.\\
+  \textrm{\\
+  We will prove the correctness of algorithm by proving all paths of the algorithm will return a correct output (the post-condition holds).\\
+  \\
+  \phantom{=} \phantom{=} {\bf path 1(line 6)}: This path is entered when S is an empty array, in which case the we will return 0 (since there is no pair for us to choose). Hence, this path holds the post-condition.\\
+  \\
+  \phantom{=} \phantom{=} {\bf path 2(line 8)}: This path is entered when S is of length 1, in which case the we will check if the only element in S can satisfy the condition as a self-pair, and return 1 if it does, or 0 if it doesn't. Hence, this path also holds the post-condition and gives the correct output.\\
+  \\
+  \phantom{=} \phantom{=} {\bf path 3(line 29)}: Line 9,10 are used to initialize our 2 index variables and the total number of pairs that satisfies the condition.\\
+  \\
+  \phantom{=} \phantom{=} \phantom{=} \phantom{=} {\bf self-pair for loop (line 13)}: \\
+  \\
+  \phantom{=} \phantom{=} \phantom{=} \phantom{=} \phantom{=} \phantom{=} For this loop, we will be looping through all the elements in S and check to see if any of them satisfies the condition $i^3 + i^3 + 3i^2 = V$. If the current element satisfies the conditoin, then we will add 1 to the total count.\\
+  \\
+  \phantom{=} \phantom{=} \phantom{=} \phantom{=} \phantom{=} \phantom{=} Since this is a for loop traversing through the entire array S without altering any of the element in S, it will eventually terminate, and when it does terminate, we should have found all the "self-pairs" found and added to our total count variable.\\
+  \\
+  \phantom{=} \phantom{=} \phantom{=} \phantom{=} {\bf while loop (line 18)}:\\
+  \phantom{=} \phantom{=} \phantom{=} \phantom{=} \phantom{=} \phantom{=} In this loop, we will be checking whether the 2 elements S[index\_a] and S[index\_b] satisfies the condition.\\
+  \\
+  \phantom{=} \phantom{=} \phantom{=} \phantom{=} \phantom{=} \phantom{=} {\bf case 1}: When validate(S[index\_a], S[index\_b]) < V, then we will move index\_a to the right by 1. Since the array S is already sorted and has no negative number, choosing S[index\_a+1] as our new a will guarantee us to have a larger result than before, so our result will be closer to V.\\
+  \\
+  \phantom{=} \phantom{=} \phantom{=} \phantom{=} \phantom{=} \phantom{=} {\bf case 2}: When validate(S[index\_a], S[index\_b]) > V, then we will move index\_b to the left by 1. Since the array S is already sorted and has no negative number, choosing S[index\_b-1] as our new b will guarantee us to have a smaller result than before, so our result will be closer to V.\\
+  \\
+  \phantom{=} \phantom{=} \phantom{=} \phantom{=} \phantom{=} \phantom{=} {\bf case 3}: When validate(S[index\_a], S[index\_b]) = V, then we found a pair that satisfies the condition, therefore we will add 1 to the total, and move index\_a to the right by 1(or we can move index\_b to the left by 1, this step is arbitrary).\\
+  \\
+  \phantom{=} \phantom{=} \phantom{=} \phantom{=} The loop will eventually terminate when index\_a = index\_b, this is the case where we have traverse through the entire array. Then, by this time, we should have found all the possible pairs that satisfies the condition. And because of the "already-sorted" nature of the array, we won't miss any pair due to our a being too small and b is large enough to be a correct pair (in this case, we will be moving index\_a to larger values until a is large enough).\\
+  \\
+  \phantom{=} \phantom{=} {\bf Time complexity}: The time complexity of our algorithm is O(n).\\
+  \\
+  \phantom{=} \phantom{=} \phantom{=} \phantom{=} Path 1 and path 2 both take O(1) time to check.\\
+  \\
+  \phantom{=} \phantom{=} \phantom{=} \phantom{=} For the first loop, we are looking at every element in S, and checking whether it satisfies the condition(which takes constant time to calculate).\\
+  \\
+  \phantom{=} \phantom{=} \phantom{=} \phantom{=} For the while loop, think of array S as a doubly linked list(with head being index\_a and tail being index\_b) and we are traversing through it and checking for the condition at each iteration (also constant time). So, the worst case is one of the pointer stays where it is during the entire traversal, and the other pointer keeps updating itself until both pointers meet, this step takes O(n).\\
+  \\
+  \phantom{=} \phantom{=} \phantom{=} \phantom{=} In conclusion, we have O(1) + O(n) + O(n), giving us O(n) in total, which satisfies the requirement.\\
+  \\
+  \phantom{=} \phantom{=} {\bf Space complexity}: the space complexity if O(1), since we are only using 3 variables in total, 2 index variables to keep track of current a and b, and 1 to keep track of the total number of pairs that satisfies the condition.\\
+  \\
+%   \phantom{=} \phantom{=} \phantom{=} \phantom{=} \phantom{=} \phantom{=} loop invariant: Inv(index\_a, index\_b) = index\_a $\geq$ 0 and index\_b $leq$ len(S)-1 and index\_a + index\_b $\epsilon$ \{len(S), len(S)-1\}\\
+%   \\
+%   \phantom{=} \phantom{=} \phantom{=} \phantom{=} \phantom{=} \phantom{=} Proof of loop invariant:\\
+%   \phantom{=} \phantom{=} \phantom{=} \phantom{=} \phantom{=} \phantom{=} {\bf Base case}: before the loop is reached, index\_a is 0 and index\_b is len(S)-1, also index\_a $\neq$ index\_b(or we would have taken path 2 where len(S) is 1).\\
+%   \phantom{=} \phantom{=} \phantom{=} \phantom{=} \phantom{=} \phantom{=} The base case holds.\\
+%   \\
+%   \phantom{=} \phantom{=} \phantom{=} \phantom{=} \phantom{=} \phantom{=} {\bf Inductive Step}: let $i_0$ and $j_0$ denote the value of index\_a and index\_b before an arbitrary iteration of the loop, and $i_1$ and $i_j$ after the iteration of the loop. Assume Inv($i_0,j_0$) is true, we will show show Inv($i_1,j_1$) is ture.\\
+%   \\
+%   \phantom{=} \phantom{=} \phantom{=} \phantom{=} \phantom{=} \phantom{=} case 1: if ${i_0}^3 + {j_0}^3 + 3i_0j_0 < V$, then $i_1 = i_0 + 1$ (line 23). Since $i_0 + j_0$
+  }
+\end{enumerate}
+
+\end{document}
+
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

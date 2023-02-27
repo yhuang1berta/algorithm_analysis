@@ -1,0 +1,204 @@
+\documentclass{assignment-373}
+
+
+\anum{1}
+\course{CSC373}
+\duedate{Sep 26, 2020}
+\filename{ps1.pdf, ps1.tex}
+
+\begin{document}
+
+\think
+
+\textbf{Please see the course information sheet for the late submission
+  policy.}
+
+\begin{enumerate}
+\item \textbf{[15 points]}
+
+  The pandemic unleashed due to the SARS-CoV-2 virus (also referred to
+  as Covid-19) has resulted in mandatory social distancing
+  requirements.
+
+  As the University plans to reopen its classrooms to be used for
+  in-person lectures again, it needs to ensure that the physical
+  distancing guidelines are followed. 
+  %
+  As a result, the university needs to reconsider the layout of its
+  classrooms.
+  %
+
+  Assume that each student seat is exactly 1 feet wide.
+  %
+  As per the distancing requirement, every two seated students must
+  have at least 6 feet of distance between them.
+  %
+  You are intrigued, and want to count the resulting number of
+  possible student seating arrangements.
+
+  For some $n \ge 0,$ consider a row with exactly $n+1$ seats.
+  %
+  You are given an array of $n$ non-negative integers
+  $\texttt{A[1...n]}$, where $\texttt{A[i]}$ gives the distance in feet
+  between seat $i$ and seat $i+1.$
+  %
+
+  Your goal is to determine the number of possible valid student
+  seating arrangements.
+
+  e.g. Given \texttt{A = [2, 3]}, specifying the distances between 3
+  seats, there are a total of 5 valid seating arrangements:
+  \begin{itemize}
+  \item 1 arrangement with no students
+    \texttt{\textvisiblespace\textvisiblespace\textvisiblespace}, 
+  \item 3 possible arrangements with 1 student
+    \texttt{X\textvisiblespace\textvisiblespace},
+    \texttt{\textvisiblespace X\textvisiblespace},
+    \texttt{\textvisiblespace\textvisiblespace X}, 
+  \item and one arrangement with 2 students \texttt{X\textvisiblespace
+      X}.
+  \end{itemize}
+  Note that the last arrangement is valid since the empty seat in the
+  middle is 1 feet wide, giving that the distance between the two
+  students is exactly 6 feet.
+
+  Systematically design a Dynamic Programming based algorithm for the
+  above problem with worst case running-time complexity of $O(n)$ by
+  answering the following questions:
+  \begin{enumerate}
+  \item \textbf{[1 point]} Clearly and precisely specify in English the
+    problem you wish to solve recursively. \\
+    The main problem is {\bf "How many ways can students sit in the seats so each students are keeping a safe distance from each other ($\geqslant$ 6 ft)."}
+  \item \textbf{[3 point]} Give a clear and precise recursive formula /
+    algorithm for solving the problem. Identify and specify the base
+    cases.\\\\
+    
+    Let's use i to denote the index of the seat at position i (ex: seat i = 2 is the seat at the end if A = [2,3])\\
+    \\
+    We define OPT as "An array that records the number of safe seats starting at the $i^{th}$ seat and store it as the $i^{th}$ element".\\
+    \\
+T(n) = $
+    \left\{
+       \begin{array}{lr}
+       1 $\; \; \; \; \; \; \; (if a is an empty array)$\\
+       2 + len(A) $\; \; \; \; \; \; \; (if there is no safe seat after the first seat)$\\
+       2 + (len(A) - i) +  OPT[$i$] $\; \; \; \; \; \; \; (if there is a next safe seat)$ &  \\
+       \end{array}
+\right.$\\\\
+
+{\bf Base case}:\\
+\phantom{=} \phantom{=} Our base case is case where there is no safe seat next to the current seat, and there are 2 possible scnearios that may cause this.\\
+\phantom{=} \phantom{=} \phantom{=} \phantom{=} (1). The array A given is an empty array, then we can just return 1 which is the seating plan for 0 student.\\
+\phantom{=} \phantom{=} \phantom{=} \phantom{=} (2). The array has no more safe seat next to the current seat we are looking at, then we will return \\
+\\
+\phantom{=} \phantom{=} \phantom{=} \phantom{=} \phantom{=} \phantom{=} \phantom{=} \phantom{=} \phantom{=} 1({\bf part a}) + 1({\bf part b}) + len(a)({\bf part c})\\
+\\
+\phantom{=} \phantom{=} \phantom{=} \phantom{=} {\bf a}: represents "the 0 student plan",\\
+\phantom{=} \phantom{=} \phantom{=} \phantom{=} {\bf b}: represents the plan that "has 1 student seat at the next seat",\\ 
+\phantom{=} \phantom{=} \phantom{=} \phantom{=} {\bf c}: represents the plan that "the 1 student who sat on the next seat \\
+\phantom{=} \phantom{=} \phantom{=} \phantom{=} can also seat on all the other seats after the next seat (we need to have $+1$ \\
+\phantom{=} \phantom{=} \phantom{=} \phantom{=} as our previous term  due to A gives the number of "seating gaps" but not\\
+\phantom{=} \phantom{=} \phantom{=} \phantom{=} actual seats).\\
+\\
+{\bf Recursive case}:\\
+\phantom{=} \phantom{=}  The recursive case is where we have at least 1 safe seat next to our current seat, in which case, we will return\\
+\begin{center}
+    2{\bf (part a)}+(len(A)-i)({\bf (part b)}+OPT[i]{\bf (part c)}
+\end{center}
+
+\textrm{\phantom{=} \phantom{=} \phantom{=} \phantom{=} {\bf a}: represents the "0 student" plan and "1 student on current seat" plan.\\}
+\phantom{=} \phantom{=} \phantom{=} \phantom{=} {\bf b}: represents the plan which if a student can sit in the next seat, then\\
+\phantom{=} \phantom{=} \phantom{=} \phantom{=} he/she can also sit on all the other seat after the next seat.\\
+\phantom{=} \phantom{=} \phantom{=} \phantom{=} {\bf c}: represents the number of seating plans before the $i^{th}$ seat(which is the current\\
+\phantom{=} \phantom{=} \phantom{=} \phantom{=} seat we are looking at).\\
+% For the cases that the seat has at least 1 safe seat next to it. We always have the seating plan which is one student sit on this seat and nobody sit on the seats after this seat. This is the one added in in front. (len(A) - the next safe seat position) represents the total number of safe seats we have from the current seat. Again the recursive problem we need to solve is How many ways students can sit on the current seat and the next seat. So at this case we can choose any one of the safe seats for the next safe seat. So we add (len(A) - the next safe seat position). The recursive function represents the numbers of seating plan from the next safe seats to the one after that safe seats. Thus, we can get the number of the total seating plans start from the very beginning's seat. Here the recursive call is run inside a loop which need to go over the entire A we can get total numbers of the seating plan start from each possible seats. So added all of the result together will give the final answer which is the total number of possible valid student seating arrangements. 
+
+  \item \textbf{[1 point]} Identify all the subproblems that your
+    recursive algorithm needs to solve.\\\\
+    The sub-problem is {\bf "How many ways can student(s) sit on the current seat and the seat(s) next to it"}. \\
+    \\
+    % Our recursive algorithm will go over every seat after the current one to find the number of seating plans based on the number of safe seats.
+  \item \textbf{[1 point]} What is the memoization data structure you will use?\\\\
+  \phantom{=} \phantom{=} 1D array (the python list "OPT" in part(f))\\
+  \item \textbf{[2 point]} Find a good bottom-up evaluation order of the
+    memoization data-structure (non-recursive) such that before
+    solving a subproblem instance, all necessary subproblems have been
+    solved.\\
+    \\
+    \phantom{=} \phantom{=} By looking at our current seat, we will first try to find all the possible seating plans from our current seat, then store it to our 1d array at index i.\\
+    \\
+    \phantom{=} \phantom{=} When we are at our next iteration, we will first calculate the number of seating plans like we did for the previous iteration, then, we will add the seating plans found in the previous iteration to the result we found in this iteration.\\
+    \phantom{=} \phantom{=} If the seating plans we found in the current result is valid (meaning the next "safe seat" we picked will be 6 ft away from our current seat), then it will certainly be a "safe seat" for our previous seat, since our previous seat is further away from our current seat.\\
+    \\
+    \phantom{=} \phantom{=} 
+    % Using a list as memorization data-structure, I append the first value (the number of ways student can sit on the current(starting) seat and the next safe seat). And than go through a loop (go through the safe seats), the number of ways I got from the previous loop will added to the current loop dynamically, so in end, after go through every possible safe seat from the beginning one, the last value of the list will be the total possible seating plans starts from the beginning seat. And since the loop will stop before the last seat, we will add 1 to the result since we can always let 1 student sit on that seat and let every seats be empty. We can delete the list since we have already save the result to the "res" in order to save space. And we added 1 after all of the loop are done (finishing count possible ways start from every seats) for the cases that nobody is seating any of the seats.\\ 
+  \item \textbf{[5 point]} Write down the final dynamic-programming
+    algorithm (non-recursive).\\
+     \begin{python}
+def seat3(A: list) -> int:
+    safe_dist = 6
+    m = dict()
+    if only 1 seat:
+        return 1
+    for i in range(len(A)):
+        gap_dist = 0
+        seat_passed = 0
+        while gap_dist + seat_passed <= safe_dist:
+            if i + seat_passed < len(A):
+                gap_dist += A[i + seat_passed]
+                seat_passed += 1
+            else:
+                seat_passed = 0
+                break
+        m[i] = seat_passed + i
+    total_plan = 0
+    if no safe seat for the first seat:
+        total_plan = total number of seats + 1
+    else:
+        take a look at every single seat j:
+            OPT = []
+            while there exists safe seat m[j]:
+                if OPT is empty:
+                    OPT.append(1 + number of safe seats left)
+                else:
+                    OPT.append(1 + number of safe seats left + OPT[len(OPT) - 1])
+                j <- next safe seat m[j]
+            if OPT is not empty:
+                total_plan += OPT[len(OPT) - 1]
+            total_plan += 1
+    return total_plan + 1
+    \end{python}\\
+    \\
+    \phantom{=} \phantom{=} The dynamic-programming starts at line 18.\\
+    \\
+    \phantom{=} \phantom{=} For the code above, it first initializes a dictionary m, which is set up to have "(index of $i^{th}$ seat, index of closest safe seat after i)" as its key-value pair; the key is the seat index and the value is the first safe seat's index of the key seat, and if it does not have a safe seats, the value will be the index of itself\\
+    \\
+    \phantom{=} \phantom{=} Line 21 looks for an edge case where if there is no safe seats for the first seat, which means the only possible seating plans is having only 1 student sitting at one of the len(A) seats at a time, or no student sit on any of the seats (which is added before return).\\
+  \item \textbf{[2 point]} Analyze its time and space complexity.\\\\
+  {\bf Time complexity}: \\
+  \\
+  \phantom{=} \phantom{=} The time complexity of our code is O(n).\\
+  \\
+  \phantom{=} \phantom{=} \phantom{=} \phantom{=} {\bf First loop (line 6)}: The first for loop will iterate through the array exactly once, with a while loop to look for the potential safe seats at each iteration.\\
+  \phantom{=} \phantom{=} \phantom{=} \phantom{=} Even though, this is a nested loop structure and should have a time complexity of O($n^2$), but the loop guard of the while loop guarantees the loop will not run more than "safe distance"(6) times (the case we are given a sequence of consecutive 0s), giving us O(6n) =$>$ O(n).\\
+  \\
+  \phantom{=} \phantom{=} \phantom{=} \phantom{=} {\bf Second loop (line 21)}: The second for loop will run exactly "len(A) + 1" time, and the while loop inside has the loop guard which forbids the loop to run "len(A) + 1" times (the "j != m[j]"), and the values in m are used as index to get to the next seat, so it wouldn't grow linearly as A grows (since having multiple consecutive close seats will cause the dict to ignore them and jump to the next safe seat). Therefore, we have O(cn) in this step, where c is the number of index we "jumped to", hence, this step will take O(n).\\
+  \\
+  \phantom{=} \phantom{=} \phantom{=} \phantom{=} Everything else would have a runtime of O(1).\\
+%   The time complexity will be O(n) because of the setup of the dictionary take n + 1 (setup values take constant time, every key has only 1 values, the length of the dictionary is n+1 (total number of seats)). And in the dynamic part I have a for loop which take len(a)+1 time = n+1. The while loop in the for loop does not depend on the length of the input value (a). It only depends the value in a (the distance between two seats). So it will take constant time. And the totally time will be 2n+2+c which is O(n).\\\\
+\\
+{\bf Space complexity}: \\
+\\
+\phantom{=} \phantom{=} The space complexity of our algorithm is O(n).\\
+\\
+\phantom{=} \phantom{=} Since we have a dictionary of length n+1 to store the seats' information. And the memorization data structure is a python list which's length is at most n + 1 (go through every single seat). But since we reset the list at the beginning of each loop iteration, there will only be 1 list existing through the entire run. So it will take n + 1 space. And we will use 2n+2 total space which is O(n) space complexity.
+  \end{enumerate}
+  
+\end{enumerate}
+
+\end{document}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
